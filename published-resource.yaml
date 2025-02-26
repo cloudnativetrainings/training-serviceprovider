@@ -1,0 +1,12 @@
+apiVersion: syncagent.kcp.io/v1alpha1
+kind: PublishedResource
+metadata:
+  name: publish-kubeone-training-environment
+  labels:
+    training-name: kubeone-training
+spec:
+  resource:
+    kind: TrainingEnvironment
+    apiGroup: kubeone.training.cloud-native.com
+    version: v1alpha1
+
