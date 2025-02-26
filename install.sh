@@ -19,6 +19,8 @@ kubectl create secret generic ks-training-kubeconfig \
   --namespace kdp-system \
   --from-file kubeconfig=/Users/hubert/Desktop/mallorca/kdp/ks.training.cloud-native.com-kubeconfig
 
+## sync agents
+
 helm repo add kcp https://kcp-dev.github.io/helm-charts
 helm repo update
 
@@ -36,4 +38,20 @@ helm upgrade --install  ks-syncagent kcp/api-syncagent \
   --namespace kdp-system
 helm upgrade --install  lf-syncagent kcp/api-syncagent \
   --values lf-syncagent.yaml \
-  --namespace kdp-system        
+  --namespace kdp-system   
+
+## crossplane operator     
+
+helm repo add \
+  crossplane-stable https://charts.crossplane.io/stable
+
+helm repo update
+
+helm upgrade --install crossplane \
+  crossplane-stable/crossplane \
+  --namespace crossplane-system \
+  --create-namespace
+
+## tf provider
+
+kubectl apply -f tf-provider.yaml

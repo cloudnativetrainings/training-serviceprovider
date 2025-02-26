@@ -1,5 +1,5 @@
 crds:
-  enabled: false
+  enabled: true
 
 # Required: the name of the APIExport in kcp that this Sync Agent is supposed to serve.
 apiExportName: kubeone.training.cloud-native.com
