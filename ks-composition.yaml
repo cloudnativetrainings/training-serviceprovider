@@ -1,0 +1,111 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xtrainingprojects.terraform.kubernetes-security.training
+spec:
+  compositeTypeRef:
+    apiVersion: kubernetes-security.training.cloud-native.com/v1alpha1
+    kind: XTrainingProject
+  mode: Pipeline
+  pipeline:
+    - step: build/render-patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: workspace
+            base:
+              apiVersion: tf.upbound.io/v1beta1
+              kind: Workspace
+              spec:
+                forProvider:
+                  env:
+                    - name: TF_VAR_vpcName
+                      value: sample-tf-inline-with-env
+                    - configMapKeyRef:
+                        key: envfromconfigmap
+                        name: provider-terraform-test
+                        namespace: default
+                      name: TF_VAR_EnvFromConfigMap
+                    - name: TF_VAR_EnvFromSecret
+                      secretKeyRef:
+                        key: envfromsecret
+                        name: provider-terraform-test
+                        namespace: default
+                  module: |
+                    resource "google_project" "ks_projects" {
+                      name            = var.project_id
+                      project_id      = var.project_id
+                      org_id          = var.main_project_id
+                      billing_account = var.billing_account
+                      deletion_policy = "DELETE"
+                    }
+                    resource "google_project_iam_member" "ks_projects_iam_member_sa_owner" {
+                      depends_on = [google_project.ks_projects]
+                      project = var.project_id
+                      role    = "roles/owner"
+                      member  = format("serviceAccount:%s", var.main_sa_email)
+                    }
+                    resource "google_project_service" "ks_projects_googleapis" {
+                      depends_on = [google_project_iam_member.ks_projects_iam_member_sa_owner]
+                      project = var.project_id
+                      service = "compute.googleapis.com"
+                    }
+                    resource "google_compute_firewall" "ks_allow_ingress" {
+                      depends_on = [google_project_iam_member.ks_projects_iam_member_sa_owner,
+                      google_project_service.ks_projects_googleapis]
+                      name    = "allow-ingress"
+                      network = "default"
+                      project = var.project_id
+                      allow {
+                        protocol = "tcp"
+                        ports    = ["10250", "6443", "30000-32767"]
+                      }
+                      source_ranges = ["0.0.0.0/0"]
+                      direction     = "INGRESS"
+                      priority      = 1000
+                    }
+                    variable "main_sa_email" {
+                      type = string
+                    }
+                    variable "main_project_id" {
+                      type = string
+                    }
+                    variable "project_id" {
+                      type = string
+                    }
+                    variable "billing_account" {
+                      type = string
+                    }
+                  source: Inline
+                  varFiles:
+                    - source: SecretKey
+                      secretKeyRef:
+                        namespace: "crossplane-system"
+                        name: "tfvars"
+                        key: "terraform.tfvars"
+                  vars:
+                    - key: project_id
+                      value: "__DUMMY"
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.claimRef.name
+                toFieldPath: spec.forProvider.vars[0].value
+                policy:
+                  fromFieldPath: Required
+---
+apiVersion: tf.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: default
+spec:
+  configuration: "<TF FILE>"
+  credentials:
+    - filename: gcloud-service-account.json
+      secretRef:
+        key: credentials
+        name: gsa
+        namespace: crossplane-system
+      source: Secret

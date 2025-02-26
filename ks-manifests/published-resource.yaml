@@ -1,0 +1,22 @@
+apiVersion: syncagent.kcp.io/v1alpha1
+kind: PublishedResource
+metadata:
+  name: publish-kubernetes-security
+  labels:
+    training-name: ks-training
+spec:
+  naming:
+    namespace: org-$remoteClusterName-$remoteNamespaceHash"
+    name: "$remoteName"
+  resource:
+    kind: TrainingEnvironment
+    apiGroup: kubernetes-security.training.cloud-native.com
+    version: v1alpha1
+  related:
+    - identifier: service-account.json
+      origin: service
+      kind: Secret
+      reference:
+        name:
+          path: spec.writeConnectionToRef
+

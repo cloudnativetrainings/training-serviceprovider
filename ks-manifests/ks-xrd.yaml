@@ -1,0 +1,23 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xtrainingprojects.kubernetes-security.training.cloud-native.com
+spec:
+  group: kubernetes-security.training.cloud-native.com
+  names:
+    kind: XTrainingProject
+    plural: xtrainingprojects
+  claimNames:
+    kind: TrainingProject
+    plural: trainingprojects
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+
