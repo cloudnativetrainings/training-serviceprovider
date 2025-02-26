@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "k1-syncagent:kdp-system:kubeone-training-environment"
+rules:
+  - apiGroups:
+      - kubeone.training.cloud-native.com
+    resources:
+      - trainingenvironments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "k1-syncagent:kdp-system:kubeone-training-environment"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "k1-syncagent:kdp-system:kubeone-training-environment"
+subjects:
+  - kind: ServiceAccount
+    name: "k1-syncagent"
+    namespace: kdp-system
