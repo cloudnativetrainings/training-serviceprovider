@@ -1,0 +1,19 @@
+crds:
+  enabled: false
+
+# Required: the name of the APIExport in kcp that this Sync Agent is supposed to serve.
+apiExportName: kfo.training.cloud-native.com
+
+# Required: This Agent's public name, used to signal ownership over locally synced objects.
+# This value must be a valid Kubernetes label value, see
+# https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set
+# for more information.
+# Changing this value after the fact will make the agent ignore previously created objects,
+# so beware and relabel if necessary.
+agentName: kfo-training
+
+# Required: Name of the Kubernetes Secret that contains a "kubeconfig" key,
+# with the kubeconfig provided by kcp to access it.
+kcpKubeconfig: kfo-training-kubeconfig
+
+publishedResourceSelector: "training-name=kfo-training"
