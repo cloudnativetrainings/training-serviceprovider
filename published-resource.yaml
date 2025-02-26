@@ -5,8 +5,25 @@ metadata:
   labels:
     training-name: kubeone-training
 spec:
+  naming:
+    namespace: org-$remoteClusterName-$remoteNamespaceHash"
+    name: "$remoteName"
   resource:
     kind: TrainingEnvironment
     apiGroup: kubeone.training.cloud-native.com
     version: v1alpha1
+  related:
+    - identifier: service-account.json
+      # "service" or "kcp"
+      origin: service
+
+      # for now, only "Secret" and "ConfigMap" are supported;
+      # there is no GVK projection for related resources
+      kind: Secret
+
+      # configure where in the parent object we can find
+      # the name/namespace of the related resource (the child)
+      reference:
+        name:
+          path: spec.writeConnectionToRef
 
