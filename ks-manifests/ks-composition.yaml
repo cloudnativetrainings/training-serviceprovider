@@ -24,13 +24,6 @@ spec:
                   name: cloudnative-trainings
                 forProvider:
                   module: |
-                    provider "google" {
-                      credentials = "gcloud-service-account.json" 
-                      project = var.main_project_id
-                      region = var.region
-                      zone = var.zone
-                    }
-                  
                     resource "google_project" "ks_projects" {
                       name            = var.project_id
                       project_id      = var.project_id
@@ -110,7 +103,7 @@ spec:
             source = "hashicorp/google"
             version = "6.15.0"
           } 
-      }
+      }      
      
       backend "kubernetes" {
         secret_suffix = "crossplane"
@@ -118,10 +111,17 @@ spec:
         in_cluster_config = true
       }
     }
+    provider "google" {
+      credentials = "gcloud-service-account.json" 
+      project = "17989447976"
+      region = "europe-west3"
+      zone = "europe-west3-a"
+    }
+
   credentials:
     - filename: gcloud-service-account.json
       secretRef:
-        key: credentials
+        key: gcloud-service-account.json
         name: gsa
         namespace: crossplane-system
       source: Secret

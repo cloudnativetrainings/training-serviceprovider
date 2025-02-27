@@ -68,4 +68,7 @@ kubectl -n crossplane-system create secret generic tfvars \
 
 kubectl apply -f ks-manifests/ks-xrd.yaml
 kubectl apply -f ks-manifests/project-published-resource.yaml
+kubectl apply -f ks-manifests/ks-composition.yaml
  
+ kubectl apply -f ks-rbac.yaml
+ kubectl apply -f tf-function.yaml

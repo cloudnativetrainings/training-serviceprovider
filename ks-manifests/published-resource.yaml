@@ -6,7 +6,7 @@ metadata:
     training-name: ks-training
 spec:
   naming:
-    namespace: org-$remoteClusterName-$remoteNamespaceHash"
+    namespace: org-$remoteClusterName-$remoteNamespaceHash
     name: "$remoteName"
   resource:
     kind: TrainingEnvironment
@@ -19,4 +19,3 @@ spec:
       reference:
         name:
           path: spec.writeConnectionToRef
-
