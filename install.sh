@@ -55,3 +55,11 @@ helm upgrade --install crossplane \
 ## tf provider
 
 kubectl apply -f tf-provider.yaml
+
+
+## sensitive data
+kubectl -n crossplane-system create secret generic gsa \
+  --from-file=.vault/gcloud-service-account.json
+
+kubectl -n crossplane-system create secret generic tfvars \
+  --from-file=.vault/terraform.tfvars

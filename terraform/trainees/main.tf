@@ -9,7 +9,7 @@ data "cloudinit_config" "cloud_init" {
 
   part {
     content_type = "text/cloud-config"
-    content      = file("modules/kubernetes_security/cloud_init.yaml")
+    content      = file("cloud_init.yaml")
     filename     = "cloud_init.yaml"
   }
 }
@@ -58,4 +58,20 @@ Host kubernetes-security-vm
 EOF
   filename        = format("out/kubernetes_security/%s/%s/ssh-config", var.event_id, var.trainee_name)
   file_permission = "0400"
+}
+
+variable "project_id" {
+  type = string
+}
+
+variable "trainee_name" {
+  type = string
+}
+
+variable "event_id" {
+  type = string
+}
+
+variable "vm_name" {
+  type = string
 }
