@@ -63,3 +63,9 @@ kubectl -n crossplane-system create secret generic gsa \
 
 kubectl -n crossplane-system create secret generic tfvars \
   --from-file=.vault/terraform.tfvars
+
+# Apply Kubernetes Security Projects
+
+kubectl apply -f ks-manifests/ks-xrd.yaml
+kubectl apply -f ks-manifests/project-published-resource.yaml
+ 
