@@ -20,21 +20,17 @@ spec:
               apiVersion: tf.upbound.io/v1beta1
               kind: Workspace
               spec:
+                providerConfigRef:
+                  name: cloudnative-trainings
                 forProvider:
-                  env:
-                    - name: TF_VAR_vpcName
-                      value: sample-tf-inline-with-env
-                    - configMapKeyRef:
-                        key: envfromconfigmap
-                        name: provider-terraform-test
-                        namespace: default
-                      name: TF_VAR_EnvFromConfigMap
-                    - name: TF_VAR_EnvFromSecret
-                      secretKeyRef:
-                        key: envfromsecret
-                        name: provider-terraform-test
-                        namespace: default
                   module: |
+                    provider "google" {
+                      credentials = "gcloud-service-account.json" 
+                      project = var.main_project_id
+                      region = var.region
+                      zone = var.zone
+                    }
+                  
                     resource "google_project" "ks_projects" {
                       name            = var.project_id
                       project_id      = var.project_id
@@ -79,6 +75,12 @@ spec:
                     variable "billing_account" {
                       type = string
                     }
+                    variable "zone" {
+                      type = string
+                    }
+                    variable "region" {
+                      type = string
+                    }
                   source: Inline
                   varFiles:
                     - source: SecretKey
@@ -99,9 +101,23 @@ spec:
 apiVersion: tf.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
-  name: default
+  name: cloudnative-trainings
 spec:
-  configuration: "<TF FILE>"
+  configuration: |
+    terraform {
+      required_providers {
+          google = {
+            source = "hashicorp/google"
+            version = "6.15.0"
+          } 
+      }
+     
+      backend "kubernetes" {
+        secret_suffix = "crossplane"
+        namespace = "crossplane-system"
+        in_cluster_config = true
+      }
+    }
   credentials:
     - filename: gcloud-service-account.json
       secretRef:
