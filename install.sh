@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export KUBECONFIG=/Users/hubert/Desktop/mallorca/kdp/kubeconfig-a7bhp87j9q
+# export KUBECONFIG=/Users/hubert/Desktop/mallorca/kdp/kubeconfig-a7bhp87j9q
+kind create cluster --name training-service-provider-cluster
 
 kubectl create namespace kdp-system
 kubectl create secret generic k1-training-kubeconfig \
@@ -19,7 +20,7 @@ kubectl create secret generic ks-training-kubeconfig \
   --namespace kdp-system \
   --from-file kubeconfig=/Users/hubert/Desktop/mallorca/kdp/ks.training.cloud-native.com-kubeconfig
 
-## sync agents
+# sync agents
 
 helm repo add kcp https://kcp-dev.github.io/helm-charts
 helm repo update
@@ -40,7 +41,7 @@ helm upgrade --install  lf-syncagent kcp/api-syncagent \
   --values lf-syncagent.yaml \
   --namespace kdp-system   
 
-## crossplane operator     
+# crossplane operator     
 
 helm repo add \
   crossplane-stable https://charts.crossplane.io/stable
@@ -52,12 +53,12 @@ helm upgrade --install crossplane \
   --namespace crossplane-system \
   --create-namespace
 
-## tf provider
+# tf provider
 
 kubectl apply -f tf-provider.yaml
 
 
-## sensitive data
+# sensitive data
 kubectl -n crossplane-system create secret generic gsa \
   --from-file=.vault/gcloud-service-account.json
 
@@ -70,5 +71,17 @@ kubectl apply -f ks-manifests/ks-xrd.yaml
 kubectl apply -f ks-manifests/project-published-resource.yaml
 kubectl apply -f ks-manifests/ks-composition.yaml
  
- kubectl apply -f ks-rbac.yaml
- kubectl apply -f tf-function.yaml
+kubectl apply -f ks-rbac.yaml
+kubectl apply -f tf-function.yaml
+
+# debug
+
+## checking syncagents
+kubectl -n kdp-system get pods
+kubectl -n kdp-system logs -f ks-syncagent-
+
+## verify training project was created
+kubectl get trainingprojects.kubernetes-security.training.cloud-native.com --all-namespaces
+
+## verify tf
+kubectl get workspaces.tf.upbound.io
